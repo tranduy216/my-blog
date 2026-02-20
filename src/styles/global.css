@@ -1,0 +1,136 @@
+:root {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --accent: #2563eb;
+    --border: #e2e8f0;
+    --code-bg: #0f172a;
+    --code-text: #f8fafc;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+}
+
+article {
+    max-width: 1080px;
+    margin: 5rem auto;
+    padding: 2.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    line-height: 1.75;
+    font-size: 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+}
+
+/* Title */
+h1 {
+    font-size: 30px;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
+}
+
+.meta {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 2rem;
+}
+
+/* Headings */
+h2 {
+    margin-top: 3rem;
+    font-size: 26px;
+    border-left: 4px solid var(--accent);
+    padding-left: 0.75rem;
+}
+
+h3 {
+    margin-top: 2rem;
+    font-size: 20px;
+}
+
+p {
+    margin: 1.2rem 0;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Blockquote */
+blockquote {
+    margin: 2rem 0;
+    padding: 1rem 1.5rem;
+    background: #f1f5f9;
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    color: var(--muted);
+}
+
+/* Code inline */
+code {
+    background: #eef2ff;
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    font-size: 0.9em;
+}
+
+/* Code block */
+pre {
+    border: 1px solid #d0d7de;
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 1.2rem;
+    border-radius: 12px;
+    overflow-x: auto;
+    font-size: 15px;
+    position: relative;
+}
+
+.copy-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 12px;
+    padding: 4px 8px;
+    border: 1px solid #d0d7de;
+    background: #f6f8fa;
+    border-radius: 6px;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.15s ease;
+}
+
+pre:hover .copy-button {
+    opacity: 1;
+}
+
+.copy-button:hover {
+    background: #eaeef2;
+}
+
+/* HR */
+hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 3rem 0;
+}
+
+.title-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.title-wrapper h1 {
+    text-align: center;
+}
