@@ -1,6 +1,7 @@
 ---
 title: IO Blocking and Non-Blocking IO
-date: Feburary 20, 2024
+date: Feburary 20, 2026
+layout: 
 ---
 
 ## 1. Câu chuyện thực tế
@@ -48,11 +49,46 @@ date: Feburary 20, 2024
 - Spring WebFlux thì dùng Netty engine, thay vì 1 manager thì nhiều manager. Ví dụ: Manager A phục vụ bàn từ 1 tới 10, B thì 11 tới 20. Và thường thì số event loop thead = 2 * core.
 - Khác biệt lớn nhất là về tư duy code: Nodejs callback regisration, WebFlux subscription chain
 
-#### 3.2.4 Phong cách State Machine
+#### 3.2.4 Phong cách State Machine (Koroutine)
+- Trong kotlin, lập trình bất đồng bộ theo phong cách imperative (tuần tự) thì rất hay dùng Koroutine
+- Trước tiên phải hiểu 1 Coroutine thực chất chỉ là 1 object chứa thông tin về trạng thái của tiến trình và có thể bị đình chỉ/tạm nghỉ (suspend) khi đang xử lý IO
+- Example
+```kotlin
+launch {
+    val uri = URI(setting.baseUrl) + request.id
+    val res = httpClient.get(uri)
+    val result = res.toObj(Person.class).getName()
+}
+```
 
+```kotlin
+// Compiler convert
+class MyCoroutine {
+    var state = 0,
+    var result: Any
+
+    fun resume():Any {
+        when(state) 
+            case 0 -> state = 1; 
+                result = httpClient.get(URI(setting.baseUrl) + request.id) // It is IO call, so the process is suspended 
+                resume() // Add to global callback queue
+            case 1 -> state = 2; return result.toObj(Person.class).getName() // After the IO complete, call resume() again, with state = 2.
+    }
+}
+```
+Như trên ví dụ, giả sử thread A trong main-thread-pool-IO xử lý 1 coroutine (đã được compiler convert ra stage machine).
+Đầu tiên, đỏi trạng thái stage từ 0 --> 1, sau dó tạo ra 1 URI, step này đơn giản không tốn time, bước tiếp theo sẽ là call HTTP request để lấy response từ bên ngoài,
+bước này được xử lý bởi OS, không tốn CPU nên thread A được trả lại pool. Còn hàm callback được add vào trong queue.
+Sau khi, kết quả được trả về, thread A hoặc 1 thread khác trong main-thread-pool lấy callback ra và xử lý tiếp, vì stage bây giờ bằng 1 nên thread chỉ đơn giản là convert ra object và tiếp tục tiến trình
 
 ## 4. Có phải NonBlocking luôn tốt
 Như có đề cập ở trên, NonBlocking chỉ tốt nếu như application đòi hỏi IO nhiều, vì IO nhiều sẽ được OS/kernel quản lý thông qua socket, mỗi khi có data thì socket sẽ báo kernel, kernel notify thread, lúc đó thread mới làm việc.
-Trong trạng thái chờ IO data, thread về pool để làm việc khác, đó là lý do khả năng thoughput của NIO application vượt tra application truyền thống.
-Nhưng khi applicaton yêu cầu xử lý CPU nặng như: Đào coin, thuật toán, tạo ảnh/video. NIO không còn ý nghĩa và còn làm chậm hơn so với web app thông thường, vì việc đánh thức và thay đổi trạng thái sẽ tốn chi phí: Chuyển đổi ngữ cảnh
 
+Trong trạng thái chờ IO data, thread về pool để làm việc khác, đó là lý do khả năng thoughput của NIO application vượt tra application truyền thống.
+
+Nhưng khi applicaton yêu cầu xử lý CPU nặng như: Đào coin, thuật toán, tạo ảnh/video. NIO không còn ý nghĩa và còn làm chậm hơn so với web app thông thường, vì việc đánh thức và thay đổi trạng thái sẽ tốn chi phí: Chuyển đổi ngữ cảnh.
+
+## 5. Blocking, Non Blocking và vô vàn thứ khác
+Đây là chủ đề rất hay và nhiều kiến thức bổ ích, tuy nhiên đòi hỏi developer không chỉ phải từng làm với threading, concurrency mà còn phải trải qua nhiều ngôn ngữ và tư duy thiết kế bất đồng bộ khác nhau để có cái nhìn đủ sâu về chủ đề này.
+Phần này cũng là để phân loại developer backend, những ai chú tâm vào cốt lõi và tự tìm hiểu cốt lõi đằng sau, thay vì chỉ làm theo mẫu và chỉ biết những gì ở dự án mình làm.
+Chúc các bạn luôn giữ được sự tò mò và tinh thần cầu tiến.

@@ -1,22 +1,45 @@
 ---
 import { getCollection } from "astro:content";
-import "../../styles/global.css";
+import "../../../styles/global.css";
 
 export async function getStaticPaths() {
-  const posts = await getCollection("mental");
+  const locales = ["vi", "en"] as const;
+  const categories = ["mental", "technical", "physical"] as const;
 
-  return posts.map((post) => ({
-    params: { slug: post.slug },
-    props: { post },
-  }));
+  const paths: any[] = [];
+
+  for (const locale of locales) {
+    for (const category of categories) {
+      const collectionKey = `${locale}/${category}` as const;
+
+      const posts = await getCollection(collectionKey);
+
+      for (const post of posts) {
+        paths.push({
+          params: {
+            locale,
+            category,
+            slug: post.slug,
+          },
+          props: {
+            post,
+            locale,
+            category,
+          },
+        });
+      }
+    }
+  }
+
+  return paths;
 }
 
-const { post } = Astro.props;
+const { post, locale } = Astro.props;
 const { Content } = await post.render();
 const base = import.meta.env.BASE_URL;
 ---
 
-<html lang="en">
+<html lang={locale}>
   <head>
     <meta charset="UTF-8" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -27,9 +50,9 @@ const base = import.meta.env.BASE_URL;
     <title>{post.data.title}</title>
   </head>
   <body>
-   <article>
+    <article>
       <!-- HOME BUTTON -->
-      <a class="home-button" href={base}>← Home</a>
+      <a class="home-button" href={`${base}/${locale}`}>← Home</a>
 
       <div class="title-wrapper">
         <h1>{post.data.date}</h1>

@@ -13,6 +13,11 @@ export default defineConfig({
     syntaxHighlight: 'shiki',
     shikiConfig: {
       theme: 'github-light',
-    },
+    }
+  },
+
+  i18n: {
+    defaultLocale: "vi",
+    locales: ["vi", "en"],
   }
 });

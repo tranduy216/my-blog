@@ -173,33 +173,79 @@ declare module 'astro:content' {
 	};
 
 	type DataEntryMap = {
-		"mental": Record<string, {
+		"en": Record<string, {
   id: string;
-  render(): Render[".md"];
-  slug: string;
-  body: string;
-  collection: "mental";
-  data: InferEntrySchema<"mental">;
+  body?: string;
+  collection: "en";
+  data: any;
   rendered?: RenderedContent;
   filePath?: string;
 }>;
-"physical": Record<string, {
+"en/mental": Record<string, {
   id: string;
   render(): Render[".md"];
   slug: string;
   body: string;
-  collection: "physical";
-  data: InferEntrySchema<"physical">;
+  collection: "en/mental";
+  data: InferEntrySchema<"en/mental">;
   rendered?: RenderedContent;
   filePath?: string;
 }>;
-"technical": Record<string, {
+"en/physical": Record<string, {
   id: string;
   render(): Render[".md"];
   slug: string;
   body: string;
-  collection: "technical";
-  data: InferEntrySchema<"technical">;
+  collection: "en/physical";
+  data: InferEntrySchema<"en/physical">;
+  rendered?: RenderedContent;
+  filePath?: string;
+}>;
+"en/technical": Record<string, {
+  id: string;
+  render(): Render[".md"];
+  slug: string;
+  body: string;
+  collection: "en/technical";
+  data: InferEntrySchema<"en/technical">;
+  rendered?: RenderedContent;
+  filePath?: string;
+}>;
+"vi": Record<string, {
+  id: string;
+  body?: string;
+  collection: "vi";
+  data: any;
+  rendered?: RenderedContent;
+  filePath?: string;
+}>;
+"vi/mental": Record<string, {
+  id: string;
+  render(): Render[".md"];
+  slug: string;
+  body: string;
+  collection: "vi/mental";
+  data: InferEntrySchema<"vi/mental">;
+  rendered?: RenderedContent;
+  filePath?: string;
+}>;
+"vi/physical": Record<string, {
+  id: string;
+  render(): Render[".md"];
+  slug: string;
+  body: string;
+  collection: "vi/physical";
+  data: InferEntrySchema<"vi/physical">;
+  rendered?: RenderedContent;
+  filePath?: string;
+}>;
+"vi/technical": Record<string, {
+  id: string;
+  render(): Render[".md"];
+  slug: string;
+  body: string;
+  collection: "vi/technical";
+  data: InferEntrySchema<"vi/technical">;
   rendered?: RenderedContent;
   filePath?: string;
 }>;
