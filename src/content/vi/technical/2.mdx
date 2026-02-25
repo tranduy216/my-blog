@@ -1,0 +1,67 @@
+---
+title: Thiết kế ngăn ngừa developer làm sai
+date: Feburary 22, 2026
+---
+
+## 1. Không có lựa chọn
+### 1.1 Một vài ví dụ
+- Nếu user không thể dùng chức năng gì đó thì tốt nhất ẩn đi là xong thay hiển thị trong trạng thái disable.
+- Thay vì cấm người dân đi vào hang động, cắt luôn cầu treo dẫn đến hang động là phương pháp đảm bảo nhất.
+- Tại sao phải yêu cầu bảo vệ môi trường
+- Không cần cấm người khác dùng dao một lưỡi gọt táo, đổi tất cả con dao thành dao hai lưỡi là được.
+- Cửa hàng tiện lợi đảm bảo người mua chỉ có thể mua Cocacola bằng cách ngưng nhập các loại nước ngọt khác.
+
+### 1.2 Lợi ích của việc không có hoặc ít lựa chọn
+- Thực tế nếu bạn là Adam thì tôi cá là bạn sẽ hạnh phúc với Eva vì làm gì người phụ nữ nào khác để chọn. Khi không còn so sánh, không còn đố kỵ, giận dữ.
+- Não bộ sẽ cảm ơn bạn vì không tốn năng lượng, hay chịu đựng căng thẳng đê suy tính thiệt hơn giữa những lựa chọn
+- Căn bản bạn sẽ có nhiều thời gian để làm những việc hữu ích. Nếu như bạn lúc nào cũng mặc áo thun trắng, quần đen, giày đen, tất đen, cả năm chắc bạn phải tiết kiệm lượng thời gian bằng cả tuần lễ
+
+
+## 2. Ứng dụng trong software development
+Nói đến software developement, thường chúng ta chỉ nghĩ đến tầng application, tức là thiên về coding, nhưng thực tế có rất nhiều khía cạnh phải quan tâm.
+- Coding 
+- Contract Design
+- Architecture
+- Project
+- Team culture
+
+Mỗi một khía cạnh lại có rất nhiều phương pháp có thể ứng dụng, dưới đây sẽ trình bày những phương pháp đơn giản và phổ biến.
+
+### 2.1 Coding
+##### 2.1.2 Giới hạn bằng modifier
+```java
+class HttpApi {
+    private String domain;
+    private HttpClient httpClient;
+    public HttpApi() {
+        domain =  Environment.getVariable("KEY_DOMAIN");
+        httpClient = HttpClient.init();
+    }
+    
+    public void setDomain(String value) {
+        this.domain = value;
+    }
+
+    public String sendGet(String url) {
+        return client.get(domain + url);
+    }
+}
+
+// Silly code
+HttpApi client = new HttpApi()
+client.setDomain("dummy.dev");
+String res = client.get("/data")
+
+// Correct one
+res = new HttpApi().get("/data")
+```
+
+Rõ ràng chúng ta dễ dàng tránh được những sai sót bằng cách cung cấp visibility tối thiểu cho function, field.
+Thông thường những class như HttpClient, HttpApi rất hay bị mock trong lúc Unit Test, hoặc ignore trong Integration test vì môi trường không sẵn sàng.
+
+Developer thiếu kinh nghiệm có thể set những value sai như ở ví dụ trên mà không bị phát hiện ra cho tới khi quá trễ.
+Nên tốt nhất là không muốn developer làm sai thì đừng cung cấp phương tiện để họ có thể làm sai.
+Giống như bạn không cần kiểm tra giới hạn tốc độ cho 1 người đi bộ vậy.
+
+
+2.1.2 Sử dụng Factory design pattern
