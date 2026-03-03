@@ -64,4 +64,110 @@ Nên tốt nhất là không muốn developer làm sai thì đừng cung cấp p
 Giống như bạn không cần kiểm tra giới hạn tốc độ cho 1 người đi bộ vậy.
 
 
-2.1.2 Sử dụng Factory design pattern
+###### 2.1.2 Sử dụng Factory design pattern
+Như tên gọi của pattern, chúng ta sử dụng pattern này để đảm bảo tất cả các object được sinh ra có thuộc tính giống nhau.
+Xét tới ví dụ sau:
+```java
+
+class CarFactory {
+    public Car makeToyotaCar() {
+        return new Car("Toyota", 4, Engine.OneDotFiveTurbo);
+    }
+
+    public Car makeFordCar() {
+        return new Car("Ford", 6, Engine.TwoCVT)
+    }
+
+      static class Car {
+      String name;
+      int wheels;
+      Engine engine;
+
+    private Car(){}
+    
+    }
+}
+
+void main(String args[]) {
+    Car myCar = new Car() // Compiler fail
+    Car myFordCar = CarFactory.makeFordCar()
+    Car myToyotaCar = CarFactory.makeToyotaCar()
+}
+
+```
+
+Developer không thể tạo 1 chiếc xe Honda, 5 bánh xe, động cơ xi lanh 4.0 được, vì Factory chỉ quy định 2 loại xe có thể tạo ra.
+Đồng thời, hạn chế tham số truyền vào để tránh sai sót trong quá trình khởi tạo Car object. 
+Trong một số trường hợp, có thể dùng để verify tham số.
+```java
+makeHondaCar(int wheels) {
+    assertTrue(wheels < 12):
+}
+```
+
+##### 2.1.3 Chain method with forcing
+Giả sử chúng ta có các trạng thái của 1 order gồm Init, Draft, Confirmed, Payment, Shipping, Completed.
+Thì code tương ứng sẽ là:
+```java
+var order = new Order()
+order.init().draft().confirmed().payment().shipping().completed()
+```
+Vấn đề xảy ra khi developer có thể gọi bất cứ method nào họ muốn, do tất cả các method đều được khai báo trong Order.
+```java
+order.init().draft().payment().confirm().completed()
+```
+
+Để giải quyết vấn đề này chúng ta có thể dùng StateMachine
+```java
+class Order {
+    int currentStatus;
+    
+    void process(OrderMessage message) {
+        switch(message.status)
+            case INIT: {}
+            case CONFIRMED { assertTrue(currentStatus +1 = CONFIRMED, "Cannot confirm the order because state of order is incorrect")  }
+    }
+}
+```
+
+Như vậy có thể đảm bảo được logic cho application của chúng ta, nhưng khá phiền phức cho developer, khi họ phải đọc code của class order và hình dung thứ tự.
+Cách tốt nhất là đảm bảo ở mỗi trạng thái của order chỉ cung cấp giới hạn những method có thể được dùng.
+
+```kotlin
+sealed interface OrderState
+
+object Init : OrderState
+object Draft : OrderState
+object Confirmed : OrderState
+
+fun Init.draft() = Draft
+fun Draft.confirm() = Confirmed
+fun Confirmed.pay() = Payment
+
+main() {
+    val order = Order()
+    val orderInit = order.init() // Return OrderState.Init
+    order.pay() // No IDE suggestion and compile error 
+}
+```
+Nếu đổi sang code java thì phải tạo custom class khá dài dòng
+```java
+class Order {
+    OrderInit init() {
+        return new OrderInit();
+    }
+}
+
+class OrderInit {  
+    OrderDraft makeDraft() {
+        return new OrderDraft();
+    }
+}
+class OrderDraft {}
+
+var order = new Order()
+order.init().makeDraft();
+
+```
+
+### 2.2 Contract Design
